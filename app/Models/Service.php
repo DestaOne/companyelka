@@ -3,16 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['title', 'slug', 'image', 'summary', 'detail'])]
+#[Fillable(['title', 'slug', 'image', 'summary', 'detail', 'status'])]
 class Service extends Model
 {
     use HasFactory;
+
+    public const STATUS_DRAFT = 'draft';
+
+    public const STATUS_PUBLISHED = 'terbit';
+
+    /** Hanya layanan berstatus terbit yang tampil di situs publik. */
+    public function scopePublished(Builder $query): void
+    {
+        $query->where('status', self::STATUS_PUBLISHED);
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === self::STATUS_PUBLISHED;
+    }
 
     /**
      * URL gambar: tautan eksternal dipakai apa adanya, selain itu dianggap berkas di disk "public".

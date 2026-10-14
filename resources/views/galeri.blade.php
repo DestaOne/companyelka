@@ -13,7 +13,7 @@
             <p class="text-lg text-slate-500 max-w-2xl">Potret pekerjaan, pengadaan, dan kegiatan kami bersama para mitra korporat di seluruh Bali.</p>
         </div>
 
-        <x-bento-gallery />
+        <x-bento-gallery :images="$images" />
 
     </div>
 </div>

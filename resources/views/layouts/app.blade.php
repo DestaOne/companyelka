@@ -63,7 +63,10 @@
                 <a href="{{ url('/tentang-kami') }}" class="block px-3 py-3 text-base font-medium transition-all {{ request()->is('tentang-kami') ? 'text-slate-900 bg-slate-50 border-l-2 border-blue-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-l-2 hover:border-blue-800' }}">
                     Tentang Kami
                 </a>
-                
+                <a href="{{ url('/galeri') }}" class="block px-3 py-3 text-base font-medium transition-all {{ request()->is('galeri') ? 'text-slate-900 bg-slate-50 border-l-2 border-blue-800' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-l-2 hover:border-blue-800' }}">
+                    Galeri
+                </a>
+
                 <div class="pt-4">
                     <a href="{{ url('/tentang-kami#kontak') }}" class="flex w-full items-center justify-center h-12 bg-blue-800 text-white text-base font-medium hover:bg-blue-900 transition duration-200">
                         Hubungi Kami

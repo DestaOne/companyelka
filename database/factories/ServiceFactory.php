@@ -20,6 +20,12 @@ class ServiceFactory extends Factory
             'image' => 'https://images.unsplash.com/photo-1497366216548-37526070297c',
             'summary' => fake()->sentence(),
             'detail' => "# Cakupan\n- ".fake()->words(2, true)."\n".fake()->sentence(),
+            'status' => Service::STATUS_PUBLISHED,
         ];
+    }
+
+    public function draft(): static
+    {
+        return $this->state(['status' => Service::STATUS_DRAFT]);
     }
 }

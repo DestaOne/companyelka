@@ -37,7 +37,7 @@ class ServiceController extends Controller
 
     public function store(ServiceRequest $request): RedirectResponse
     {
-        $data = $request->safe()->only(['title', 'summary', 'detail']);
+        $data = $request->safe()->only(['title', 'summary', 'detail', 'status']);
         $data['slug'] = Service::uniqueSlug($data['title']);
         $data['image'] = $request->file('image')->store('services', 'public');
 
@@ -53,7 +53,7 @@ class ServiceController extends Controller
 
     public function update(ServiceRequest $request, Service $service): RedirectResponse
     {
-        $data = $request->safe()->only(['title', 'summary', 'detail']);
+        $data = $request->safe()->only(['title', 'summary', 'detail', 'status']);
 
         if ($request->hasFile('image')) {
             $service->deleteImageFile();

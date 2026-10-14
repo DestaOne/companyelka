@@ -32,7 +32,7 @@
         <!-- GAMBAR -->
         <div class="{{ $left ? 'lg:order-1' : 'lg:order-2' }}">
             <div class="w-full aspect-[16/10] bg-slate-200 overflow-hidden">
-                <img data-zoomable src="{{ $image }}" alt="{{ $title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                <img data-zoomable loading="lazy" src="{{ $image }}" alt="{{ $title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
             </div>
         </div>
 

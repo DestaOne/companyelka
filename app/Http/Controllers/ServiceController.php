@@ -10,12 +10,14 @@ class ServiceController extends Controller
     public function index(): View
     {
         return view('layanan.index', [
-            'services' => Service::orderBy('id')->get(),
+            'services' => Service::published()->orderBy('id')->get(),
         ]);
     }
 
     public function show(Service $service): View
     {
+        abort_unless($service->isPublished(), 404);
+
         return view('layanan.show', compact('service'));
     }
 }

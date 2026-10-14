@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
     {
         // Daftar layanan di footer mengikuti data dari admin.
         View::composer('layouts.app', function ($view) {
-            $view->with('footerServices', Service::orderBy('id')->get());
+            $view->with('footerServices', Service::published()->orderBy('id')->get());
         });
     }
 }

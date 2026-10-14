@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->parameters(['layanan' => 'service'])
             ->except('show')
             ->names('services');
+
+        Route::resource('galeri', GalleryController::class)
+            ->parameters(['galeri' => 'galleryImage'])
+            ->only(['index', 'create', 'store', 'destroy'])
+            ->names('gallery');
 
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
     });

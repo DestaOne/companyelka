@@ -7,7 +7,7 @@
 --}}
 <style>
     img[data-zoomable] { cursor: zoom-in; }
-    #lightbox-img { will-change: transform; user-select: none; -webkit-user-drag: none; }
+    #lightbox-img { user-select: none; -webkit-user-drag: none; }
 </style>
 
 <div id="lightbox" class="fixed inset-0 z-[100] hidden bg-slate-950/90" role="dialog" aria-modal="true" aria-label="Preview gambar">
@@ -63,8 +63,17 @@
         apply(animate);
     }
 
-    function open(src, alt) {
+    var loadToken = 0;
+
+    // thumb tampil langsung; bila ada versi besar (data-full), diganti begitu selesai dimuat.
+    function open(src, alt, full) {
+        var token = ++loadToken;
         img.src = src;
+        if (full && full !== src) {
+            var big = new Image();
+            big.onload = function () { if (token === loadToken) { img.src = full; } };
+            big.src = full;
+        }
         img.alt = alt || '';
         s = 1; tx = 0; ty = 0; apply(false);
         box.classList.remove('hidden');
@@ -72,6 +81,7 @@
     }
 
     function close() {
+        loadToken++;
         box.classList.add('hidden');
         document.body.style.overflow = '';
         pointers.clear();
@@ -80,7 +90,7 @@
 
     document.addEventListener('click', function (e) {
         var t = e.target.closest && e.target.closest('img[data-zoomable]');
-        if (t) { open(t.currentSrc || t.src, t.alt); }
+        if (t) { open(t.currentSrc || t.src, t.alt, t.dataset.full); }
     });
 
     document.getElementById('lightbox-close').addEventListener('click', close);

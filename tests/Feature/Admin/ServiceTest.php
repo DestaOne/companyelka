@@ -24,6 +24,7 @@ class ServiceTest extends TestCase
             'title' => 'Alat Tulis Kantor',
             'summary' => 'Ringkasan layanan.',
             'detail' => "# Cakupan\n- Pulpen\n- Kertas\nParagraf penutup.",
+            'status' => 'terbit',
             'image' => UploadedFile::fake()->image('foto.jpg'),
         ], $override);
     }
@@ -158,5 +159,34 @@ class ServiceTest extends TestCase
         Service::factory()->count(3)->create();
 
         $this->actingAs($this->admin())->get('/admin')->assertSeeText('3');
+    }
+
+    public function test_status_is_required_and_must_be_valid(): void
+    {
+        $this->actingAs($this->admin())->post('/admin/layanan', $this->payload(['status' => 'rahasia']))
+            ->assertSessionHasErrors('status');
+    }
+
+    public function test_draft_services_are_hidden_from_public_site(): void
+    {
+        $published = Service::factory()->create(['title' => 'Layanan Terbit']);
+        $draft = Service::factory()->draft()->create(['title' => 'Layanan Draft']);
+
+        $this->get('/layanan')->assertSeeText('Layanan Terbit')->assertDontSeeText('Layanan Draft');
+        $this->get('/layanan/'.$published->slug)->assertOk();
+        $this->get('/layanan/'.$draft->slug)->assertNotFound();
+    }
+
+    public function test_service_can_be_switched_between_draft_and_published(): void
+    {
+        $service = Service::factory()->create();
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->put("/admin/layanan/{$service->id}", $this->payload(['status' => 'draft']))
+            ->assertRedirect(route('admin.services.index'));
+        $this->assertSame('draft', $service->fresh()->status);
+
+        $this->actingAs($admin)->put("/admin/layanan/{$service->id}", $this->payload(['status' => 'terbit']));
+        $this->assertSame('terbit', $service->fresh()->status);
     }
 }

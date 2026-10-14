@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\GalleryImage;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\View\View;
@@ -13,6 +14,7 @@ class DashboardController extends Controller
     {
         return view('admin.dashboard', [
             'serviceCount' => Service::count(),
+            'galleryCount' => GalleryImage::count(),
             'adminCount' => User::where('is_admin', true)->count(),
         ]);
     }
