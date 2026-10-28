@@ -34,10 +34,5 @@
     </div>
 </div>
 
-<x-cta-banner
-    title="Tertarik Dengan Layanan Ini?"
-    desc="Konsultasikan kebutuhan Anda. Tim kami akan menyiapkan penawaran terbaik yang disesuaikan dengan anggaran dan spesifikasi Anda."
-    buttonText="Minta Penawaran"
-    buttonUrl="/tentang-kami#kontak"
-/>
+<x-cta-banner slug="layanan-detail" />
 @endsection

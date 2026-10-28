@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['image', 'thumbnail'])]
+#[Fillable(['image', 'thumbnail', 'title'])]
 class GalleryImage extends Model
 {
     use HasFactory;

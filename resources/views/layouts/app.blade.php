@@ -17,7 +17,7 @@
             <div class="flex justify-between h-16 items-center">
                 
                 <div class="flex-shrink-0 flex items-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo Elka Mandiri" class="h-8 w-auto">
+                    <img src="{{ $logos['navbar']->image_url }}" alt="Logo Elka Mandiri" class="h-8 w-auto">
                 </div>
 
                 <!-- Menu Desktop (Murni efek Hover seperti semula) -->
@@ -84,7 +84,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12">
                 <div class="md:col-span-4">
-                    <img src="{{ asset('images/elkamandiri.jpeg') }}" alt="Logo Elka Mandiri" class="h-8 w-auto mb-6">
+                    <img src="{{ $logos['footer']->image_url }}" alt="Logo Elka Mandiri" class="h-8 w-auto mb-6">
                     <p class="text-sm text-slate-400 leading-relaxed mb-6">
                         Solusi terpercaya untuk kebutuhan mesin kantor, komputer, perangkat lunak, dan furnitur.
                     </p>
@@ -94,18 +94,18 @@
                     <h3 class="text-xs font-semibold text-white tracking-wider uppercase mb-4">Kontak Kami</h3>
                     <ul class="space-y-3">
                         <li>
-                            <a class="text-sm text-slate-400 hover:text-white transition-colors duration-200 block leading-relaxed">
-                                Jalan Tukad Batanghari Blok B Nomor 1, Kelurahan Panjer Kec, Denpasar Selatan, Kota Denpasar Provinsi Bali
+                            <a href="{{ $contact->maps_url }}" target="_blank" rel="noopener noreferrer" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 block leading-relaxed">
+                                {{ $contact->address }}
                             </a>
                         </li>
                         <li>
-                            <a href="mailto:elkamandiri.cv@gmail.com" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 block">
-                                Email: elkamandiri.cv@gmail.com
+                            <a href="{{ $contact->email_url }}" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 block">
+                                Email: {{ $contact->email }}
                             </a>
                         </li>
                         <li>
-                            <a href="https://wa.me/628113383679?text=halo%20elkamandiri,%20saya%20ingin%20berkonsultasi%20terkaitan%20layanan%20yang%20disediakan" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 block">
-                                Telepon: 08113383679
+                            <a href="{{ $contact->whatsapp_url }}" class="text-sm text-slate-400 hover:text-white transition-colors duration-200 block">
+                                Telepon: {{ $contact->whatsapp_display }}
                             </a>
                         </li>
                     </ul>
@@ -113,11 +113,16 @@
 
                 <div class="md:col-span-4">
                     <h3 class="text-xs font-semibold text-white tracking-wider uppercase mb-4">Layanan</h3>
-                    <ul class="space-y-3">
-                        @foreach($footerServices as $footerService)
-                        <li><a href="{{ route('layanan.show', $footerService) }}" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">{{ $footerService->title }}</a></li>
+                    {{-- Tiap kolom berisi 5 layanan; sisanya menjadi kolom baru di sebelah kanan. Kolom dibuat terpisah agar tinggi barisnya tidak saling mempengaruhi. --}}
+                    <div class="grid grid-cols-1 gap-y-3 md:grid-flow-col md:auto-cols-[minmax(0,max-content)] md:gap-x-10">
+                        @foreach($footerServices->chunk(5) as $column)
+                        <ul class="space-y-3">
+                            @foreach($column as $footerService)
+                            <li><a href="{{ route('layanan.show', $footerService) }}" class="text-sm text-slate-400 hover:text-white transition-colors duration-200">{{ $footerService->title }}</a></li>
+                            @endforeach
+                        </ul>
                         @endforeach
-                    </ul>
+                    </div>
                 </div>
             </div>
             

@@ -26,8 +26,15 @@
                     <span class="absolute left-2 top-2 bg-slate-950/70 px-2 py-0.5 text-xs font-semibold text-white">{{ $loop->iteration }}</span>
                 </div>
                 <div class="p-2">
+                    <form method="POST" action="{{ route('admin.gallery.update', $image) }}" class="mb-2 flex gap-x-1">
+                        @csrf
+                        @method('PUT')
+                        <input type="text" name="title" value="{{ old('title', $image->title) }}" maxlength="100" placeholder="Judul" aria-label="Judul gambar {{ $loop->iteration }}"
+                               class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700">
+                        <button type="submit" class="shrink-0 rounded-lg border border-slate-300 px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100">Simpan</button>
+                    </form>
                     <form method="POST" action="{{ route('admin.gallery.destroy', $image) }}"
-                          onsubmit="return confirm('Hapus gambar ini dari galeri? Tindakan ini tidak dapat dibatalkan.')">
+                          data-confirm-title="Hapus gambar?" data-confirm-message="Gambar ini akan dihapus dari galeri beserta berkasnya. Tindakan ini tidak dapat dibatalkan.">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="flex w-full items-center justify-center gap-x-1.5 rounded-lg px-3 py-2 text-sm font-medium text-red-600 border border-red-200 transition-colors hover:bg-red-50">
@@ -40,4 +47,8 @@
         @endforeach
     </div>
 @endif
+
+<div class="mt-12">
+    <x-admin-banner type="cta" slug="galeri" />
+</div>
 @endsection

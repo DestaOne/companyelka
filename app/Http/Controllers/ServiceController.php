@@ -10,7 +10,7 @@ class ServiceController extends Controller
     public function index(): View
     {
         return view('layanan.index', [
-            'services' => Service::published()->orderBy('id')->get(),
+            'services' => Service::published()->ordered()->get(),
         ]);
     }
 

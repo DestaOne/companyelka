@@ -140,4 +140,26 @@ class GalleryTest extends TestCase
             ->assertSeeText('Ukuran unggahan terlalu besar')
             ->assertSeeText(UploadLimit::label((int) floor($limit / 1024)));
     }
+
+    public function test_titles_can_be_set_on_upload_and_edited_later(): void
+    {
+        Storage::fake('public');
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/admin/galeri', [
+            'images' => [UploadedFile::fake()->image('a.jpg', 1000, 800), UploadedFile::fake()->image('b.jpg', 1000, 800)],
+            'titles' => ['Pengadaan Kantor', ''],
+        ])->assertRedirect(route('admin.gallery.index'));
+
+        [$a, $b] = GalleryImage::orderBy('id')->get()->all();
+        $this->assertSame('Pengadaan Kantor', $a->title);
+        $this->assertNull($b->title);
+
+        $this->get('/galeri')->assertSeeText('Pengadaan Kantor');
+
+        $this->put("/admin/galeri/{$b->id}", ['title' => 'Judul Baru'])->assertRedirect();
+        $this->assertSame('Judul Baru', $b->fresh()->title);
+
+        $this->put("/admin/galeri/{$b->id}", ['title' => str_repeat('x', 101)])->assertSessionHasErrors('title');
+    }
 }

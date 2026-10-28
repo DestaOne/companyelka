@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ServiceRequest;
+use App\Models\Activity;
 use App\Models\Service;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ServiceController extends Controller
@@ -24,10 +27,28 @@ class ServiceController extends Controller
                     ->where('title', 'like', $term)
                     ->orWhere('summary', 'like', $term));
             })
-            ->orderBy('id')
+            ->ordered()
             ->get();
 
         return view('admin.services.index', compact('services', 'search'));
+    }
+
+    public function reorder(Request $request): JsonResponse
+    {
+        $ids = $request->validate([
+            'order' => ['required', 'array', 'min:1'],
+            'order.*' => ['integer', 'distinct', 'exists:services,id'],
+        ])['order'];
+
+        DB::transaction(function () use ($ids) {
+            foreach (array_values($ids) as $index => $id) {
+                Service::whereKey($id)->update(['position' => $index + 1]);
+            }
+        });
+
+        Activity::record('mengubah urutan layanan');
+
+        return response()->json(['message' => 'Urutan tersimpan.']);
     }
 
     public function create(): View
@@ -42,6 +63,8 @@ class ServiceController extends Controller
         $data['image'] = $request->file('image')->store('services', 'public');
 
         Service::create($data);
+
+        Activity::record("menambahkan layanan “{$data['title']}”");
 
         return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil ditambahkan.');
     }
@@ -63,6 +86,8 @@ class ServiceController extends Controller
         // Slug sengaja tidak diubah agar tautan ke halaman detail tetap valid.
         $service->update($data);
 
+        Activity::record("memperbarui layanan “{$service->title}”");
+
         return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil diperbarui.');
     }
 
@@ -70,6 +95,8 @@ class ServiceController extends Controller
     {
         $service->deleteImageFile();
         $service->delete();
+
+        Activity::record("menghapus layanan “{$service->title}”");
 
         return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil dihapus.');
     }

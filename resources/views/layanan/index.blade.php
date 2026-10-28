@@ -1,12 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<x-hero-banner
-        image="https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=2069&auto=format&fit=crop"
-        badge="Katalog layanan"
-        title="Solusi Ekosistem Kerja"
-        subtitle=" Dari perangkat keras berkinerja tinggi hingga tata ruang presisi. Kami menyediakan produk berkualitas unggul untuk memastikan setiap aspek operasional Anda berjalan tanpa hambatan."
-    />
+<x-hero-banner slug="layanan" />
 
 <!-- Tiap layanan memiliki section sendiri -->
 @foreach($services as $index => $service)
@@ -23,10 +18,5 @@
 </section>
 @endforeach
 
-<x-cta-banner
-    title="Tertarik Dengan Layanan Kami?"
-    desc="Tim ahli kami siap memberikan konsultasi dan penawaran terbaik sesuai dengan anggaran dan spesifikasi perusahaan Anda."
-    buttonText="Konsultasi Sekarang"
-    buttonUrl="/tentang-kami#kontak"
-/>
+<x-cta-banner slug="layanan" />
 @endsection

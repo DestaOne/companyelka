@@ -91,8 +91,9 @@
                     Ingat saya
                 </label>
 
-                <button type="submit" class="h-12 w-full rounded-md bg-blue-700 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
-                    Masuk
+                <button type="submit" id="login-button" data-seconds="{{ $lockoutSeconds }}" @disabled($lockoutSeconds > 0)
+                        class="h-12 w-full rounded-md bg-blue-700 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:bg-slate-400">
+                    <span id="login-button-text">{{ $lockoutSeconds > 0 ? "Coba lagi dalam {$lockoutSeconds} detik" : 'Masuk' }}</span>
                 </button>
             </form>
 
@@ -103,5 +104,25 @@
     </div>
 </div>
 
+<script>
+(function () {
+    // Tombol Masuk dinonaktifkan selama penguncian, lalu aktif lagi setelah hitung mundur habis.
+    var button = document.getElementById('login-button');
+    var text = document.getElementById('login-button-text');
+    var left = parseInt(button.dataset.seconds, 10) || 0;
+    if (left <= 0) { return; }
+
+    var timer = setInterval(function () {
+        left--;
+        if (left <= 0) {
+            clearInterval(timer);
+            button.disabled = false;
+            text.textContent = 'Masuk';
+        } else {
+            text.textContent = 'Coba lagi dalam ' + left + ' detik';
+        }
+    }, 1000);
+})();
+</script>
 </body>
 </html>

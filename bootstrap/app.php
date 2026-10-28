@@ -16,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
 
+        // Pemeriksaan admin harus lebih dulu dari route model binding; tanpa ini, non-admin mendapat
+        // 404 untuk ID yang tidak ada dan 403 untuk yang ada, sehingga keberadaan data bisa ditebak.
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            prepend: \App\Http\Middleware\EnsureUserIsAdmin::class,
+        );
+
         $middleware->redirectGuestsTo(fn () => route('admin.login'));
         $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
     })

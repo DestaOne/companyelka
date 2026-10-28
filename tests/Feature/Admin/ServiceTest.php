@@ -189,4 +189,48 @@ class ServiceTest extends TestCase
         $this->actingAs($admin)->put("/admin/layanan/{$service->id}", $this->payload(['status' => 'terbit']));
         $this->assertSame('terbit', $service->fresh()->status);
     }
+
+    public function test_new_services_are_appended_and_public_pages_follow_position(): void
+    {
+        $a = Service::factory()->create(['title' => 'Layanan A']);
+        $b = Service::factory()->create(['title' => 'Layanan B']);
+        $this->assertSame([1, 2], [$a->position, $b->position]);
+
+        $this->actingAs($this->admin())
+            ->putJson('/admin/layanan/urutan', ['order' => [$b->id, $a->id]])
+            ->assertOk();
+
+        $this->assertSame([$b->id, $a->id], Service::ordered()->pluck('id')->all());
+        $this->get('/layanan')->assertSeeInOrder(['Layanan B', 'Layanan A']);
+    }
+
+    public function test_reorder_rejects_invalid_input_and_non_admins(): void
+    {
+        $service = Service::factory()->create();
+
+        $this->actingAs($this->admin())->putJson('/admin/layanan/urutan', ['order' => [$service->id, 999]])
+            ->assertUnprocessable();
+
+        $this->actingAs(User::factory()->create())->putJson('/admin/layanan/urutan', ['order' => [$service->id]])
+            ->assertForbidden();
+    }
+
+    public function test_index_includes_drag_script_only_when_sortable(): void
+    {
+        Service::factory()->count(2)->create(['summary' => 'Ringkasan umum']);
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->get('/admin/layanan')->assertSee("addEventListener('dragstart'", false);
+        $this->actingAs($admin)->get('/admin/layanan?q=ringkasan')->assertDontSee("addEventListener('dragstart'", false);
+    }
+
+    public function test_delete_forms_use_confirmation_dialog(): void
+    {
+        Service::factory()->create(['title' => 'Layanan Hapus']);
+
+        $this->actingAs($this->admin())->get('/admin/layanan')
+            ->assertSee('data-confirm-message', false)
+            ->assertSee('id="confirm-dialog"', false)
+            ->assertDontSee('onsubmit', false);
+    }
 }

@@ -22,6 +22,8 @@ class GalleryRequest extends FormRequest
     {
         return [
             'images' => ['required', 'array', 'min:1', 'max:10'],
+            'titles' => ['nullable', 'array'],
+            'titles.*' => ['nullable', 'string', 'max:100'],
             'images.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:'.UploadLimit::kilobytes(self::APP_MAX_KB), 'dimensions:min_width=800'],
         ];
     }
@@ -32,6 +34,7 @@ class GalleryRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'titles.*.max' => 'Judul gambar maksimal 100 karakter.',
             'images.required' => 'Pilih minimal satu gambar.',
             'images.max' => 'Maksimal 10 gambar sekali unggah.',
             'images.*.image' => 'Setiap berkas harus berupa gambar.',

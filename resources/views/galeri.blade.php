@@ -18,10 +18,5 @@
     </div>
 </div>
 
-<x-cta-banner 
-    title="Ingin Hasil Serupa untuk Ruang Kerja Anda?"
-    desc="Tim ahli kami siap memberikan konsultasi dan penawaran terbaik sesuai dengan anggaran dan spesifikasi perusahaan Anda."
-    buttonText="Konsultasi Sekarang"
-    buttonUrl="/tentang-kami#kontak"
-/>
+<x-cta-banner slug="galeri" />
 @endsection

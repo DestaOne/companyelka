@@ -22,7 +22,7 @@
         <div class="{{ $gridPattern[$index % 8] }} relative overflow-hidden group bg-slate-200 ring-1 ring-slate-200">
             <img data-zoomable data-full="{{ $image->image_url }}" loading="lazy" src="{{ $image->thumbnail_url }}" 
                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
-                 alt="Galeri Proyek {{ $index + 1 }}">
+                 alt="{{ $image->title ?: 'Galeri Proyek '.($index + 1) }}">
 
             <!-- Gradasi gelap muncul saat hover -->
             <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -33,7 +33,7 @@
             <!-- Keterangan -->
             <div class="pointer-events-none absolute inset-x-0 bottom-0 p-5 md:p-6 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out">
 
-                <span class="block text-base md:text-lg font-semibold text-white tracking-tight">Proyek & Kegiatan</span>
+                <span class="block text-base md:text-lg font-semibold text-white tracking-tight">{{ $image->title ?: 'Proyek & Kegiatan' }}</span>
             </div>
         </div>
     @endforeach

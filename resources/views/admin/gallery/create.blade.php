@@ -23,11 +23,12 @@
                 @if($postMax > 0)
                 <li>Total ukuran semua gambar dalam sekali unggah maksimal {{ \App\Support\UploadLimit::label($postMax) }}.</li>
                 @endif
+                <li>Setelah memilih gambar, Anda bisa mengisi judul untuk tiap gambar. Judul tampil saat gambar di-hover di halaman Galeri; bila kosong, tampil "Proyek &amp; Kegiatan".</li>
                 <li>Gambar otomatis dikecilkan dan dikonversi ke WebP, jadi halaman galeri tetap ringan namun tetap tajam saat di-zoom.</li>
             </ul>
 
             @error('images') <p class="mt-2 text-sm text-red-600">{{ $message }}</p> @enderror
-            @foreach($errors->get('images.*') as $messages)
+            @foreach(array_merge($errors->get('images.*'), $errors->get('titles.*')) as $messages)
                 @foreach($messages as $message)
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @endforeach
@@ -47,12 +48,22 @@
     document.getElementById('images').addEventListener('change', function (e) {
         var box = document.getElementById('previews');
         box.innerHTML = '';
-        Array.from(e.target.files).forEach(function (file) {
+        Array.from(e.target.files).forEach(function (file, i) {
+            var card = document.createElement('div');
             var img = document.createElement('img');
             img.src = URL.createObjectURL(file);
             img.alt = file.name;
             img.className = 'aspect-[4/3] w-full bg-slate-100 object-cover';
-            box.appendChild(img);
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'titles[' + i + ']';
+            input.maxLength = 100;
+            input.placeholder = 'Judul (opsional)';
+            input.setAttribute('aria-label', 'Judul untuk ' + file.name);
+            input.className = 'mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-700';
+            card.appendChild(img);
+            card.appendChild(input);
+            box.appendChild(card);
         });
     });
 </script>

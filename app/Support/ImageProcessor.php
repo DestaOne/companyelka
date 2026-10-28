@@ -20,6 +20,8 @@ class ImageProcessor
 
     public const THUMB_WIDTH = 1000;
 
+    public const AVATAR_SIZE = 256;
+
     /**
      * @return array{image: string, thumbnail: string} path relatif pada disk "public"
      */
@@ -39,5 +41,20 @@ class ImageProcessor
             'image' => "{$directory}/{$name}",
             'thumbnail' => "{$directory}/thumbs/{$name}",
         ];
+    }
+
+    /**
+     * Foto profil: dipotong persegi dari tengah, lalu disimpan sebagai satu berkas WebP.
+     *
+     * @return string path relatif pada disk "public"
+     */
+    public static function storeAvatar(UploadedFile $file, string $directory): string
+    {
+        $path = "{$directory}/".Str::uuid()->toString().'.webp';
+        $image = ImageManager::usingDriver(Driver::class)->decode($file)->cover(self::AVATAR_SIZE, self::AVATAR_SIZE);
+
+        Storage::disk('public')->put($path, $image->encodeUsingFormat(Format::WEBP, quality: 85)->toString());
+
+        return $path;
     }
 }

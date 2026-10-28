@@ -14,9 +14,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('admin.login');
+        // Setelah gagal login, email yang tadi diketik dikembalikan lewat old input.
+        $email = (string) old('email', '');
+
+        return view('admin.login', [
+            'lockoutSeconds' => $email === '' ? 0 : LoginRequest::lockoutRemaining($email, $request->ip()),
+        ]);
     }
 
     /**

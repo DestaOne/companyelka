@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['title', 'slug', 'image', 'summary', 'detail', 'status'])]
+#[Fillable(['title', 'slug', 'image', 'summary', 'detail', 'status', 'position'])]
 class Service extends Model
 {
     use HasFactory;
@@ -18,6 +18,20 @@ class Service extends Model
     public const STATUS_DRAFT = 'draft';
 
     public const STATUS_PUBLISHED = 'terbit';
+
+    /** Layanan baru otomatis ditempatkan di urutan paling akhir. */
+    protected static function booted(): void
+    {
+        static::creating(function (self $service) {
+            $service->position ??= (int) static::max('position') + 1;
+        });
+    }
+
+    /** Urutan tampil yang diatur admin; id sebagai pembeda bila posisi sama. */
+    public function scopeOrdered(Builder $query): void
+    {
+        $query->orderBy('position')->orderBy('id');
+    }
 
     /** Hanya layanan berstatus terbit yang tampil di situs publik. */
     public function scopePublished(Builder $query): void
