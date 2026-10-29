@@ -125,16 +125,3 @@ Semuanya ada di `.env`:
 |---|---|---|
 | `CONTACT_MAX_PER_HOUR` | Batas pesan yang boleh dikirim satu pengunjung dalam satu jam | `10` |
 | `SESSION_LIFETIME` | Lama admin tetap login tanpa aktivitas (menit) | `30` |
-
-## Sebelum dipasang di server
-
-Beberapa hal yang gampang terlewat:
-
-- Di `.env` server, pakai `APP_ENV=production`, `APP_DEBUG=false`, dan isi `APP_URL` dengan alamat situs Anda.
-- Pasang dependensi tanpa paket pengembangan: `composer install --no-dev --optimize-autoloader`.
-- Jalankan `npm run build` di server, atau unggah folder `public/build` hasil build Anda.
-- Jalankan `php artisan migrate --force` dan `php artisan storage:link`.
-- Jangan unggah file `public/hot`. File itu hanya ada saat `npm run dev` berjalan, dan akan membuat situs tampil tanpa gaya.
-- Buat database dan pengguna MySQL khusus untuk situs ini, lalu isi `DB_*` di `.env` server. Jangan pakai akun `root`.
-- Pastikan folder `storage` dan `bootstrap/cache` bisa ditulis oleh server web.
-- Aktifkan HTTPS, lalu tambahkan `SESSION_SECURE_COOKIE=true` di `.env`.
