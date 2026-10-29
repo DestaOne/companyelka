@@ -17,7 +17,8 @@ Website company profile untuk CV Elka Mandiri, dibuat dengan Laravel. Pengunjung
 
 ## Yang perlu disiapkan
 
-- PHP 8.3 atau lebih baru, dengan ekstensi GD (dukungan WebP), SQLite, mbstring, dan fileinfo
+- PHP 8.3 atau lebih baru, dengan ekstensi GD (dukungan WebP), PDO MySQL, mbstring, dan fileinfo
+- MySQL atau MariaDB yang sudah berjalan
 - Composer
 - Node.js dan npm
 
@@ -62,13 +63,31 @@ node -v
 
    Kalau `ADMIN_EMAIL` dan `ADMIN_PASSWORD` dikosongkan, akun admin tidak akan dibuat.
 
-5. **Siapkan database.** Proyek ini memakai SQLite, jadi tidak perlu memasang MySQL. Cukup buat berkasnya, lalu jalankan migrasi dan seeder (seeder mengisi contoh layanan dan galeri, serta membuat akun admin dari langkah 4).
+5. **Siapkan database MySQL.** Buat dulu database kosongnya, misalnya lewat terminal MySQL:
+
+   ```sql
+   CREATE DATABASE comElka CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+   Lalu di `.env`, hapus tanda `#` di depan baris `DB_*` dan sesuaikan dengan MySQL Anda:
+
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=comElka
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+
+   Setelah itu jalankan migrasi dan seeder. Seeder mengisi contoh layanan dan galeri, serta membuat akun admin dari langkah 4.
 
    ```bash
-   touch database/database.sqlite
    php artisan migrate
    php artisan db:seed
    ```
+
+   Kalau muncul `Access denied` atau `Connection refused`, periksa lagi username, password, dan pastikan servernya MySQL menyala.
 
 6. **Hubungkan folder gambar unggahan.** Tanpa langkah ini, gambar yang diunggah lewat admin tidak akan tampil.
 
@@ -116,5 +135,6 @@ Beberapa hal yang gampang terlewat:
 - Jalankan `npm run build` di server, atau unggah folder `public/build` hasil build Anda.
 - Jalankan `php artisan migrate --force` dan `php artisan storage:link`.
 - Jangan unggah file `public/hot`. File itu hanya ada saat `npm run dev` berjalan, dan akan membuat situs tampil tanpa gaya.
-- Pastikan folder `storage`, `bootstrap/cache`, dan `database` bisa ditulis oleh server web.
+- Buat database dan pengguna MySQL khusus untuk situs ini, lalu isi `DB_*` di `.env` server. Jangan pakai akun `root`.
+- Pastikan folder `storage` dan `bootstrap/cache` bisa ditulis oleh server web.
 - Aktifkan HTTPS, lalu tambahkan `SESSION_SECURE_COOKIE=true` di `.env`.
