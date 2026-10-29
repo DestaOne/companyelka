@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicDisk;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,7 +32,7 @@ class GalleryImage extends Model
     {
         return Str::startsWith($path, ['http://', 'https://'])
             ? $path
-            : Storage::disk('public')->url($path);
+            : PublicDisk::url($path);
     }
 
     public function deleteFiles(): void

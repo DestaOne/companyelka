@@ -126,7 +126,7 @@
                             @php $isNew = $activitiesReadAt && $activity->created_at > $activitiesReadAt; @endphp
                             @if($activity->isVisitorMessage())
                                 <li class="{{ $isNew ? 'bg-blue-50' : '' }}">
-                                    <a href="{{ route('admin.messages.show', $activity->contact_message_id) }}" class="flex gap-x-3 px-4 py-3 hover:bg-slate-50">
+                                    <a href="{{ $activity->contact_message_id ? route('admin.messages.show', $activity->contact_message_id) : route('admin.messages.index') }}" class="flex gap-x-3 px-4 py-3 hover:bg-slate-50">
                                         <span class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700">
                                             <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
                                         </span>

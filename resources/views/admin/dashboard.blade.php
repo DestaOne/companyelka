@@ -32,7 +32,7 @@
     </div>
 </section>
 
-<div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="{{ $card }}">
         <div class="flex items-start justify-between gap-x-4">
             <div>
@@ -45,6 +45,18 @@
         </div>
         <p class="mt-1 text-xs text-slate-500">{{ $publishedCount }} terbit &middot; {{ $draftCount }} draft</p>
     </div>
+    <a href="{{ route('admin.messages.index', ['filter' => 'belum-dibaca']) }}" class="{{ $card }} block">
+        <div class="flex items-start justify-between gap-x-4">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Pesan Belum Dibaca</p>
+                <p class="mt-2 text-4xl font-extrabold tracking-tight text-slate-900">{{ $unreadMessageCount }}</p>
+            </div>
+            <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-white">
+                <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
+            </span>
+        </div>
+        <p class="mt-1 text-xs text-slate-500">{{ $unreadMessageCount > 0 ? 'Klik untuk membaca' : 'Semua pesan sudah dibaca' }}</p>
+    </a>
     <div class="{{ $card }}">
         <div class="flex items-start justify-between gap-x-4">
             <div>
@@ -56,18 +68,6 @@
             </span>
         </div>
         <p class="mt-1 text-xs text-slate-500">Gambar terunggah</p>
-    </div>
-    <div class="{{ $card }}">
-        <div class="flex items-start justify-between gap-x-4">
-            <div>
-                <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Jumlah Admin</p>
-                <p class="mt-2 text-4xl font-extrabold tracking-tight text-slate-900">{{ $adminCount }}</p>
-            </div>
-            <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-white">
-                <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
-            </span>
-        </div>
-        <p class="mt-1 text-xs text-slate-500">Akun terdaftar</p>
     </div>
 </div>
 
@@ -82,8 +82,10 @@
         </div>
         <p class="mt-1 text-sm text-slate-500">Layanan yang masih berstatus draft dan belum tampil di situs.</p>
 
-        @forelse($drafts as $draft)
-            <a href="{{ route('admin.services.edit', $draft) }}" class="mt-4 flex items-center gap-x-3 rounded-xl p-3 ring-1 ring-slate-200 transition-colors hover:bg-slate-50">
+        @if($drafts->isNotEmpty())
+        <div class="mt-4 max-h-[31rem] space-y-3 overflow-y-auto">
+        @foreach($drafts as $draft)
+            <a href="{{ route('admin.services.edit', $draft) }}" class="flex items-center gap-x-3 rounded-xl p-3 ring-1 ring-slate-200 transition-colors hover:bg-slate-50">
                 <img src="{{ $draft->image_url }}" alt="" class="size-12 shrink-0 rounded-lg bg-slate-100 object-cover">
                 <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-semibold text-slate-950">{{ $draft->title }}</p>
@@ -91,20 +93,57 @@
                 </div>
                 <span class="shrink-0 text-sm font-semibold text-blue-700">Edit</span>
             </a>
-        @empty
+        @endforeach
+        </div>
+        @else
             <div class="mt-4 flex items-center gap-x-3 rounded-xl bg-green-50 p-4 ring-1 ring-green-200">
                 <svg class="size-5 shrink-0 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
                 <p class="text-sm text-slate-800">Tidak ada layanan draft. Semua layanan sudah terbit.</p>
             </div>
-        @endforelse
+        @endif
 
         @if($draftCount > $drafts->count())
             <a href="{{ route('admin.services.index') }}" class="mt-4 inline-block text-sm font-semibold text-blue-700 hover:text-blue-900">Dan {{ $draftCount - $drafts->count() }} layanan draft lainnya: lihat semua layanan</a>
         @endif
     </section>
 
+    {{-- Pesan masuk yang belum dibaca --}}
+    <section class="{{ $card }}" aria-labelledby="unread-title">
+        <div class="flex items-center justify-between gap-x-4">
+            <h2 id="unread-title" class="text-base font-bold text-slate-950">Pesan Belum Dibaca</h2>
+            @if($unreadMessageCount > 0)
+                <span class="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-800">{{ $unreadMessageCount }} baru</span>
+            @endif
+        </div>
+        <p class="mt-1 text-sm text-slate-500">Pesan dari pengunjung yang belum Anda buka.</p>
+
+        @if($unreadMessages->isNotEmpty())
+        <div class="mt-4 max-h-[31rem] space-y-3 overflow-y-auto">
+        @foreach($unreadMessages as $unread)
+            <a href="{{ route('admin.messages.show', $unread) }}" class="flex items-center gap-x-3 rounded-xl p-3 ring-1 ring-slate-200 transition-colors hover:bg-slate-50">
+                <span class="flex size-12 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-sm font-bold text-blue-700">{{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($unread->name, 0, 1)) }}</span>
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold text-slate-950">{{ $unread->name }}</p>
+                    <p class="truncate text-xs text-slate-500">{{ $unread->subject }}</p>
+                </div>
+                <span class="shrink-0 text-sm font-semibold text-blue-700">Buka</span>
+            </a>
+        @endforeach
+        </div>
+        @else
+            <div class="mt-4 flex items-center gap-x-3 rounded-xl bg-green-50 p-4 ring-1 ring-green-200">
+                <svg class="size-5 shrink-0 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                <p class="text-sm text-slate-800">Semua pesan sudah dibaca.</p>
+            </div>
+        @endif
+
+        @if($unreadMessageCount > $unreadMessages->count())
+            <a href="{{ route('admin.messages.index', ['filter' => 'belum-dibaca']) }}" class="mt-4 inline-block text-sm font-semibold text-blue-700 hover:text-blue-900">Dan {{ $unreadMessageCount - $unreadMessages->count() }} pesan lainnya: lihat semua</a>
+        @endif
+    </section>
+
     {{-- Aktivitas terbaru --}}
-    <section class="{{ $card }}" aria-labelledby="activity-title">
+    <section class="{{ $card }} lg:col-span-2" aria-labelledby="activity-title">
         <div class="flex items-center justify-between gap-x-4">
             <h2 id="activity-title" class="text-base font-bold text-slate-950">Aktivitas Terbaru</h2>
             <a href="{{ route('admin.activities.index') }}" class="text-sm font-semibold text-blue-700 hover:text-blue-900">Lihat semua</a>
@@ -114,14 +153,14 @@
             @forelse($recentActivities as $activity)
                 <li class="flex gap-x-3 py-3">
                     @if($activity->isVisitorMessage())
-                        <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-700">?</span>
+                        <span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700"><svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg></span>
                     @else
                         <x-avatar :user="$activity->user" size="size-8" text="text-xs" />
                     @endif
                     <div class="min-w-0">
                         <p class="break-words text-sm text-slate-700">
                             @if($activity->isVisitorMessage())
-                                <a href="{{ route('admin.messages.show', $activity->contact_message_id) }}" class="hover:underline">{{ $activity->description }}</a>
+                                @if($activity->contact_message_id)<a href="{{ route('admin.messages.show', $activity->contact_message_id) }}" class="hover:underline">{{ $activity->description }}</a>@else{{ $activity->description }}@endif
                             @else
                                 <span class="font-semibold text-slate-950">{{ $activity->user?->name ?? 'Admin' }}</span> {{ $activity->description }}
                             @endif

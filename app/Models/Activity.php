@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 /** Catatan aktivitas admin yang tampil di ikon notifikasi panel admin. */
 #[Fillable(['user_id', 'description', 'contact_message_id'])]
@@ -25,10 +26,14 @@ class Activity extends Model
         return $this->belongsTo(ContactMessage::class, 'contact_message_id');
     }
 
-    /** Aktivitas yang berasal dari pengunjung (pesan masuk), bukan dari admin. */
+    /**
+     * Aktivitas yang berasal dari pengunjung (pesan masuk), bukan dari admin.
+     * Setelah pesannya dihapus, contact_message_id menjadi null, tetapi catatannya tetap dari pengunjung.
+     */
     public function isVisitorMessage(): bool
     {
-        return $this->contact_message_id !== null;
+        return $this->contact_message_id !== null
+            || ($this->user_id === null && str_starts_with($this->description, 'Pesan baru dari '));
     }
 
     /** Mencatat pesan baru dari pengunjung agar muncul di lonceng notifikasi. */
@@ -43,7 +48,7 @@ class Activity extends Model
     /** Mencatat aktivitas admin yang sedang login, mis. "menambahkan 3 gambar ke galeri". */
     public static function record(string $description): void
     {
-        static::create(['user_id' => auth()->id(), 'description' => $description]);
+        static::create(['user_id' => Auth::id(), 'description' => $description]);
     }
 
     /** Jumlah aktivitas yang terjadi setelah admin terakhir membuka notifikasi. */

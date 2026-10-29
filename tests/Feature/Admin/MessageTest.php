@@ -175,8 +175,23 @@ class MessageTest extends TestCase
 
         $this->assertSame(0, ContactMessage::count());
         // Aktivitasnya tetap ada, hanya tautan ke pesannya yang dilepas.
-        $this->assertNull(Activity::where('description', 'like', 'Pesan baru%')->sole()->contact_message_id);
-        $this->get('/admin')->assertOk();
+        $activity = Activity::where('description', 'like', 'Pesan baru%')->sole();
+        $this->assertNull($activity->contact_message_id);
+        $this->assertTrue($activity->isVisitorMessage());
+
+        // Tetap tampil sebagai pesan pengunjung (ikon amplop, tanpa tautan ke pesan yang sudah hilang).
+        $this->get('/admin')->assertOk()
+            ->assertSee($activity->description)
+            ->assertDontSee('>?</span>', false);
+        $this->get('/admin/aktivitas')->assertOk()->assertSee('Pengunjung');
+    }
+
+    public function test_dashboard_and_activity_log_use_envelope_icon_for_visitor_messages(): void
+    {
+        $this->post('/kirim-pesan', $this->payload());
+
+        $this->actingAs($this->admin())->get('/admin')->assertOk()->assertDontSee('>?</span>', false);
+        $this->get('/admin/aktivitas')->assertOk()->assertDontSee('>?</span>', false);
     }
 
     public function test_sidebar_shows_the_unread_message_count(): void

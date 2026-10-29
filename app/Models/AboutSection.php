@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicDisk;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -138,7 +139,7 @@ class AboutSection extends Model
     {
         return Attribute::get(fn () => $this->image === null || ! $this->hasLocalImage()
             ? $this->image
-            : Storage::disk('public')->url($this->image));
+            : PublicDisk::url($this->image));
     }
 
     public function hasLocalImage(): bool

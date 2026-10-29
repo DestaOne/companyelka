@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\PublicDisk;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -37,7 +38,7 @@ class User extends Authenticatable
     protected function photoUrl(): Attribute
     {
         return Attribute::get(fn () => filled($this->photo)
-            ? Storage::disk('public')->url($this->photo)
+            ? PublicDisk::url($this->photo)
             : null);
     }
 

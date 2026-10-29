@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicDisk;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
@@ -84,7 +85,7 @@ class Logo extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::get(fn () => $this->hasCustomImage()
-            ? Storage::disk('public')->url($this->image)
+            ? PublicDisk::url($this->image)
             : asset($this->definition['default']));
     }
 

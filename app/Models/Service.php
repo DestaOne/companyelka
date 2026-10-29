@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicDisk;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -50,7 +51,7 @@ class Service extends Model
     protected function imageUrl(): Attribute
     {
         return Attribute::get(fn () => $this->hasLocalImage()
-            ? Storage::disk('public')->url($this->image)
+            ? PublicDisk::url($this->image)
             : $this->image);
     }
 
