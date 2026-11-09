@@ -27,15 +27,22 @@ class ImageProcessor
      */
     public static function store(UploadedFile $file, string $directory): array
     {
+        // Foto beresolusi tinggi butuh memori besar saat didekode; naikkan batas hanya untuk proses ini.
+        $memory = (int) ini_parse_quantity((string) ini_get('memory_limit'));
+        if ($memory > 0 && $memory < 512 * 1024 * 1024) {
+            ini_set('memory_limit', '512M');
+        }
+
         $manager = ImageManager::usingDriver(Driver::class);
         $name = Str::uuid()->toString().'.webp';
         $disk = Storage::disk('public');
 
-        $full = $manager->decode($file)->scaleDown(width: self::FULL_WIDTH);
-        $disk->put("{$directory}/{$name}", $full->encodeUsingFormat(Format::WEBP, quality: 82)->toString());
+        // Didekode sekali: versi besar disimpan dulu, lalu gambar yang sama dikecilkan lagi untuk thumbnail.
+        $image = $manager->decode($file)->scaleDown(width: self::FULL_WIDTH);
+        $disk->put("{$directory}/{$name}", $image->encodeUsingFormat(Format::WEBP, quality: 82)->toString());
 
-        $thumb = $manager->decode($file)->scaleDown(width: self::THUMB_WIDTH);
-        $disk->put("{$directory}/thumbs/{$name}", $thumb->encodeUsingFormat(Format::WEBP, quality: 78)->toString());
+        $image->scaleDown(width: self::THUMB_WIDTH);
+        $disk->put("{$directory}/thumbs/{$name}", $image->encodeUsingFormat(Format::WEBP, quality: 78)->toString());
 
         return [
             'image' => "{$directory}/{$name}",

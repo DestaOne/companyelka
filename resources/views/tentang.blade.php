@@ -130,7 +130,32 @@
                 <p class="text-slate-600 mb-6">Isi formulir berikut dan tim kami akan segera menghubungi Anda.</p>
 
                 @if(session('message_sent'))
-                    <div role="status" class="mb-6 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('message_sent') }}</div>
+                    <div role="status" class="mb-6 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('message_sent') }}
+                        @if(session('mailto_url'))
+                            <p class="mt-2">Kami juga membukakan email dengan isi pesan yang sama. Jika belum terbuka, kirim lewat
+                                <a id="gmail-link" href="{{ session('gmail_url') }}" target="_blank" rel="noopener" class="font-semibold underline">Gmail</a>,
+                                <a href="{{ session('outlook_url') }}" target="_blank" rel="noopener" class="font-semibold underline">Outlook</a>, atau
+                                <a id="mailto-link" href="{{ session('mailto_url') }}" class="font-semibold underline">aplikasi email</a>.</p>
+                        @endif
+                    </div>
+                    @if(session('mailto_url'))
+                        <script>
+                            (function () {
+                                // Desktop: buka Gmail di tab baru (atau di tab ini bila diblokir). Ponsel: buka aplikasi email lewat mailto.
+                                var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+                                    || !window.matchMedia('(pointer: fine)').matches;
+                                if (isMobile) {
+                                    window.location.href = document.getElementById('mailto-link').href;
+                                } else {
+                                    var gmail = document.getElementById('gmail-link').href;
+                                    // Browser sering memblokir tab baru yang dibuka tanpa klik; jika diblokir, pindah di tab ini.
+                                    if (! window.open(gmail, '_blank')) {
+                                        window.location.href = gmail;
+                                    }
+                                }
+                            })();
+                        </script>
+                    @endif
                 @endif
 
                 <form method="POST" action="{{ route('pesan.store') }}" class="space-y-5">

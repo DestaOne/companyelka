@@ -10,7 +10,7 @@ class GalleryController extends Controller
     public function __invoke(): View
     {
         return view('galeri', [
-            'images' => GalleryImage::orderBy('id')->get(),
+            'images' => GalleryImage::ordered()->get(),
         ]);
     }
 }

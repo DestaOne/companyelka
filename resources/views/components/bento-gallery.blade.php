@@ -1,17 +1,7 @@
 @props(['images'])
 
 @php
-    // Pola ukuran kotak (Bento Grid) berulang setiap 8 gambar
-    $gridPattern = [
-        'md:col-span-5 md:row-span-2', 
-        'md:col-span-7 md:row-span-1', 
-        'md:col-span-4 md:row-span-1', 
-        'md:col-span-3 md:row-span-1', 
-        'md:col-span-3 md:row-span-1', 
-        'md:col-span-5 md:row-span-1', 
-        'md:col-span-4 md:row-span-2', 
-        'md:col-span-8 md:row-span-1', 
-    ];
+    $gridPattern = \App\Models\GalleryImage::GRID_PATTERN;
 @endphp
 
 @if($images->isEmpty())

@@ -48,4 +48,28 @@ class MessageController extends Controller
 
         return redirect()->route('admin.messages.index')->with('success', 'Pesan berhasil dihapus.');
     }
+
+    /** Menghapus beberapa pesan sekaligus dari kotak centang di daftar. */
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'ids' => ['required', 'array', 'min:1', 'max:100'],
+            'ids.*' => ['integer', 'distinct'],
+            'filter' => ['nullable', 'in:belum-dibaca'],
+        ], [
+            'ids.required' => 'Pilih minimal satu pesan untuk dihapus.',
+            'ids.min' => 'Pilih minimal satu pesan untuk dihapus.',
+            'ids.max' => 'Terlalu banyak pesan dipilih sekaligus (maksimal 100).',
+        ]);
+
+        $deleted = ContactMessage::whereIn('id', $data['ids'])->delete();
+
+        if ($deleted > 0) {
+            Activity::record("menghapus {$deleted} pesan masuk sekaligus");
+        }
+
+        return redirect()
+            ->route('admin.messages.index', array_filter(['filter' => $data['filter'] ?? null]))
+            ->with('success', "{$deleted} pesan berhasil dihapus.");
+    }
 }

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
@@ -54,7 +55,7 @@ class ErrorPagesTest extends TestCase
     public function test_expired_csrf_token_shows_the_419_page(): void
     {
         // Middleware CSRF tidak aktif saat test, jadi pengecualiannya dilempar langsung seperti yang dilakukan middleware itu.
-        Route::get('/_uji-csrf', fn () => throw new \Illuminate\Session\TokenMismatchException('CSRF token mismatch.'));
+        Route::get('/_uji-csrf', fn () => throw new TokenMismatchException('CSRF token mismatch.'));
 
         $this->get('/_uji-csrf')->assertStatus(419)->assertSee('Sesi Anda Telah Berakhir');
     }

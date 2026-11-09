@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Models\Contact;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ContactTest extends TestCase
@@ -158,8 +159,8 @@ class ContactTest extends TestCase
 
     public function test_short_maps_link_is_resolved_so_address_link_and_map_use_the_same_location(): void
     {
-        \Illuminate\Support\Facades\Http::fake([
-            'maps.app.goo.gl/*' => \Illuminate\Support\Facades\Http::response('', 302, ['Location' => 'https://www.google.com/maps/place/Toko+Elka+Mandiri/@-8.68,115.21,17z/data=!3m1']),
+        Http::fake([
+            'maps.app.goo.gl/*' => Http::response('', 302, ['Location' => 'https://www.google.com/maps/place/Toko+Elka+Mandiri/@-8.68,115.21,17z/data=!3m1']),
         ]);
         $this->actingAs($this->admin());
 
@@ -174,15 +175,15 @@ class ContactTest extends TestCase
 
     public function test_short_link_pointing_outside_google_is_not_followed(): void
     {
-        \Illuminate\Support\Facades\Http::fake([
-            'maps.app.goo.gl/*' => \Illuminate\Support\Facades\Http::response('', 302, ['Location' => 'http://169.254.169.254/latest']),
+        Http::fake([
+            'maps.app.goo.gl/*' => Http::response('', 302, ['Location' => 'http://169.254.169.254/latest']),
         ]);
         $this->actingAs($this->admin());
 
         $this->put('/admin/tentang/kontak', $this->payload(['maps_link' => 'https://maps.app.goo.gl/abc123']))
             ->assertSessionHas('success', fn ($m) => str_contains($m, 'peta memakai teks alamat'));
 
-        \Illuminate\Support\Facades\Http::assertSentCount(1);
+        Http::assertSentCount(1);
         $this->assertNull(Contact::current()->maps_resolved);
         $this->assertStringContainsString('maps?q=Jl.%20Raya%20Baru', Contact::current()->maps_embed_url);
     }

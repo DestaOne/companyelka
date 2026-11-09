@@ -7,8 +7,10 @@ use App\Http\Requests\Admin\GalleryRequest;
 use App\Models\Activity;
 use App\Models\GalleryImage;
 use App\Support\ImageProcessor;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class GalleryController extends Controller
@@ -16,7 +18,7 @@ class GalleryController extends Controller
     public function index(): View
     {
         return view('admin.gallery.index', [
-            'images' => GalleryImage::orderBy('id')->get(),
+            'images' => GalleryImage::ordered()->get(),
         ]);
     }
 
@@ -54,6 +56,25 @@ class GalleryController extends Controller
         Activity::record('mengubah judul gambar galeri');
 
         return redirect()->route('admin.gallery.index')->with('success', 'Judul gambar diperbarui.');
+    }
+
+    /** Menyimpan urutan baru hasil drag and drop; `order` berisi seluruh id gambar sesuai urutan yang diinginkan. */
+    public function reorder(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'order' => ['required', 'array'],
+            'order.*' => ['integer', 'distinct', 'exists:gallery_images,id'],
+        ]);
+
+        DB::transaction(function () use ($data) {
+            foreach (array_values($data['order']) as $index => $id) {
+                GalleryImage::whereKey($id)->update(['position' => $index + 1]);
+            }
+        });
+
+        Activity::record('mengatur ulang posisi gambar galeri');
+
+        return response()->json(['message' => 'Urutan tersimpan.']);
     }
 
     public function destroy(GalleryImage $galleryImage): RedirectResponse

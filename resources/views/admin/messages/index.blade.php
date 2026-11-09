@@ -22,11 +22,33 @@
     @if($messages->isEmpty())
         <p class="px-6 py-12 text-center text-sm text-slate-500">{{ $filter === 'belum-dibaca' ? 'Tidak ada pesan yang belum dibaca.' : 'Belum ada pesan masuk.' }}</p>
     @else
+        {{-- Kotak centang berada di luar form hapus per baris, lalu dihubungkan ke form ini lewat atribut form="bulk-delete". --}}
+        <form id="bulk-delete" method="POST" action="{{ route('admin.messages.bulk-destroy') }}"
+              data-confirm-title="Hapus pesan terpilih?" data-confirm-message="Pesan terpilih akan dihapus. Tindakan ini tidak dapat dibatalkan.">
+            @csrf
+            @method('DELETE')
+            @if($filter === 'belum-dibaca')<input type="hidden" name="filter" value="belum-dibaca">@endif
+        </form>
+
+        <div class="flex items-center justify-between gap-x-4 border-b border-slate-100 bg-slate-50 px-4 py-2.5 sm:px-6">
+            <label class="flex items-center gap-x-3 text-sm text-slate-600">
+                <input type="checkbox" id="select-all" class="size-4 rounded border-slate-300 text-blue-700 focus:ring-blue-700">
+                <span id="select-label">Pilih semua</span>
+            </label>
+            <button type="submit" form="bulk-delete" id="bulk-delete-btn" disabled
+                    class="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400">
+                Hapus terpilih
+            </button>
+        </div>
+
         <ul class="divide-y divide-slate-100">
             @foreach($messages as $message)
                 @php $time = $message->created_at->copy()->setTimezone(\App\Models\Activity::TIMEZONE)->locale('id'); @endphp
                 <li class="flex items-start gap-x-2 {{ $message->isRead() ? '' : 'bg-blue-50/60' }}">
-                    <a href="{{ route('admin.messages.show', $message) }}" class="flex min-w-0 flex-1 items-start gap-x-4 px-4 py-4 hover:bg-slate-50 sm:px-6">
+                    <input type="checkbox" name="ids[]" value="{{ $message->id }}" form="bulk-delete" data-select
+                           aria-label="Pilih pesan dari {{ $message->name }}"
+                           class="mt-5 ml-4 size-4 shrink-0 rounded border-slate-300 text-blue-700 focus:ring-blue-700 sm:ml-6">
+                    <a href="{{ route('admin.messages.show', $message) }}" class="flex min-w-0 flex-1 items-start gap-x-4 px-3 py-4 hover:bg-slate-50">
                         <span class="mt-2 size-2.5 shrink-0 rounded-full {{ $message->isRead() ? 'bg-transparent' : 'bg-blue-700' }}" @unless($message->isRead()) title="Belum dibaca" @endunless></span>
                         <div class="min-w-0 flex-1">
                             <div class="flex flex-wrap items-baseline justify-between gap-x-4">
@@ -66,5 +88,33 @@
             <span class="rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-400">Berikutnya</span>
         @endif
     </nav>
+@endif
+
+@if($messages->isNotEmpty())
+<script>
+    (function () {
+        var boxes = Array.prototype.slice.call(document.querySelectorAll('[data-select]'));
+        var all = document.getElementById('select-all');
+        var label = document.getElementById('select-label');
+        var btn = document.getElementById('bulk-delete-btn');
+        var form = document.getElementById('bulk-delete');
+
+        function refresh() {
+            var n = boxes.filter(function (b) { return b.checked; }).length;
+            all.checked = n === boxes.length;
+            all.indeterminate = n > 0 && n < boxes.length;
+            label.textContent = n === 0 ? 'Pilih semua' : n + ' dipilih';
+            btn.disabled = n === 0;
+            form.dataset.confirmMessage = n + ' pesan akan dihapus. Tindakan ini tidak dapat dibatalkan.';
+        }
+
+        all.addEventListener('change', function () {
+            boxes.forEach(function (b) { b.checked = all.checked; });
+            refresh();
+        });
+        boxes.forEach(function (b) { b.addEventListener('change', refresh); });
+        refresh();
+    })();
+</script>
 @endif
 @endsection

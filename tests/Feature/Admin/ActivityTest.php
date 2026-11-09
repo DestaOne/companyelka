@@ -6,6 +6,7 @@ use App\Models\Activity;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -62,7 +63,7 @@ class ActivityTest extends TestCase
     {
         $admin = User::factory()->admin()->create(['name' => 'Admin Elka']);
         $this->actingAs($admin);
-        $this->travelTo(\Illuminate\Support\Carbon::parse('2026-10-20 06:30:15', 'UTC'));
+        $this->travelTo(Carbon::parse('2026-10-20 06:30:15', 'UTC'));
         Activity::record('menambahkan 2 gambar ke galeri');
 
         $this->get('/admin/aktivitas')

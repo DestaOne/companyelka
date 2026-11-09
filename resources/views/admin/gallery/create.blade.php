@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $maxKb = \App\Support\UploadLimit::kilobytes(\App\Http\Requests\Admin\GalleryRequest::APP_MAX_KB);
+    $maxKb = \App\Support\UploadLimit::serverKilobytes();
     $postMax = (int) floor(\App\Support\UploadLimit::postMaxBytes() / 1024);
 @endphp
 <div class="max-w-4xl">
@@ -19,11 +19,11 @@
 
             <ul class="mt-2 space-y-1 text-xs text-slate-500">
                 <li>Bisa memilih beberapa gambar sekaligus (maksimal 10).</li>
-                <li>JPG, PNG, atau WebP, maksimal {{ \App\Support\UploadLimit::label($maxKb) }} per gambar, lebar minimal 800 piksel.</li>
+                <li>JPG, PNG, atau WebP.@if($maxKb > 0) Ukuran per gambar maksimal {{ \App\Support\UploadLimit::label($maxKb) }} (batas server).@endif</li>
                 @if($postMax > 0)
                 <li>Total ukuran semua gambar dalam sekali unggah maksimal {{ \App\Support\UploadLimit::label($postMax) }}.</li>
                 @endif
-                <li>Setelah memilih gambar, Anda bisa mengisi judul untuk tiap gambar. Judul tampil saat gambar di-hover di halaman Galeri; bila kosong, tampil "Proyek &amp; Kegiatan".</li>
+                <li>Gambar baru masuk di posisi paling akhir; atur posisinya dengan drag and drop di halaman Galeri. Setelah memilih gambar, Anda bisa mengisi judul untuk tiap gambar. Judul tampil saat gambar di-hover di halaman Galeri; bila kosong, tampil "Proyek &amp; Kegiatan".</li>
                 <li>Gambar otomatis dikecilkan dan dikonversi ke WebP, jadi halaman galeri tetap ringan namun tetap tajam saat di-zoom.</li>
             </ul>
 

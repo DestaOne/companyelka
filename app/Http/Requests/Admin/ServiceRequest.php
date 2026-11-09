@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Contracts\Validation\ValidationRule;
-use App\Support\UploadLimit;
 use App\Models\Service;
+use App\Support\UploadLimit;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

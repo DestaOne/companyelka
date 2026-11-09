@@ -70,11 +70,15 @@ class GalleryTest extends TestCase
             'images' => [UploadedFile::fake()->create('a.pdf', 10, 'application/pdf')],
         ])->assertSessionHasErrors('images.0');
 
+        $this->assertSame(0, GalleryImage::count());
+
+        // Gambar kecil boleh diunggah; tidak ada syarat lebar minimal.
+        Storage::fake('public');
         $this->actingAs($admin)->post('/admin/galeri', [
             'images' => [UploadedFile::fake()->image('kecil.jpg', 300, 200)],
-        ])->assertSessionHasErrors('images.0');
+        ])->assertSessionHasNoErrors();
 
-        $this->assertSame(0, GalleryImage::count());
+        $this->assertSame(1, GalleryImage::count());
     }
 
     public function test_admin_can_delete_image_and_its_files(): void
@@ -115,18 +119,66 @@ class GalleryTest extends TestCase
         $this->actingAs($this->admin())->get('/admin')->assertSeeText('Gambar terunggah');
     }
 
-    public function test_upload_limit_text_and_validation_follow_server_limit(): void
+    public function test_app_has_no_per_image_size_cap_below_the_server_limit(): void
     {
-        $maxKb = UploadLimit::kilobytes(\App\Http\Requests\Admin\GalleryRequest::APP_MAX_KB);
-        $label = UploadLimit::label($maxKb);
+        Storage::fake('public');
         $admin = $this->admin();
 
-        $this->actingAs($admin)->get('/admin/galeri/create')
-            ->assertSeeText("maksimal {$label} per gambar");
-
+        // 5 MB: di atas batas 2 MB yang dulu dipasang aplikasi.
         $this->actingAs($admin)->post('/admin/galeri', [
-            'images' => [UploadedFile::fake()->image('besar.jpg', 2000, 1500)->size($maxKb + 1)],
-        ])->assertSessionHasErrors(['images.0' => "Ukuran tiap gambar maksimal {$label}."]);
+            'images' => [UploadedFile::fake()->image('besar.jpg', 2000, 1500)->size(5120)],
+        ])->assertRedirect(route('admin.gallery.index'))->assertSessionHasNoErrors();
+
+        $this->assertSame(1, GalleryImage::count());
+
+        $label = UploadLimit::label(UploadLimit::serverKilobytes());
+        $this->actingAs($admin)->get('/admin/galeri/create')
+            ->assertSeeText("Ukuran per gambar maksimal {$label} (batas server)");
+    }
+
+    public function test_new_images_are_appended_and_public_page_follows_position(): void
+    {
+        $first = GalleryImage::factory()->create(['title' => 'Pertama']);
+        $second = GalleryImage::factory()->create(['title' => 'Kedua']);
+        $third = GalleryImage::factory()->create(['title' => 'Ketiga']);
+
+        $this->assertSame([1, 2, 3], [$first->position, $second->position, $third->position]);
+
+        $this->actingAs($this->admin())->putJson('/admin/galeri/urutan', ['order' => [$third->id, $first->id, $second->id]])
+            ->assertOk();
+
+        $this->assertSame(['Ketiga', 'Pertama', 'Kedua'], GalleryImage::ordered()->pluck('title')->all());
+        $this->get('/galeri')->assertSeeInOrder(['Ketiga', 'Pertama', 'Kedua']);
+
+        $new = GalleryImage::factory()->create(['title' => 'Baru']);
+        $this->assertSame(4, $new->position);
+    }
+
+    public function test_admin_preview_follows_position_and_uses_the_public_grid_pattern(): void
+    {
+        $a = GalleryImage::factory()->create(['title' => 'A']);
+        $b = GalleryImage::factory()->create(['title' => 'B']);
+        $b->update(['position' => 0]);
+
+        $this->actingAs($this->admin())->get('/admin/galeri')
+            ->assertOk()
+            ->assertSee('id="bento"', false)
+            ->assertSee('md:col-span-5 md:row-span-2', false)
+            ->assertSee('data-handle', false)
+            ->assertSeeInOrder(['data-id="'.$b->id.'"', 'data-id="'.$a->id.'"'], false);
+    }
+
+    public function test_reorder_is_validated_and_admin_only(): void
+    {
+        $image = GalleryImage::factory()->create();
+
+        $this->putJson('/admin/galeri/urutan', ['order' => [$image->id]])->assertUnauthorized();
+        $this->actingAs(User::factory()->create())->putJson('/admin/galeri/urutan', ['order' => [$image->id]])->assertForbidden();
+
+        $admin = $this->admin();
+        $this->actingAs($admin)->putJson('/admin/galeri/urutan', [])->assertJsonValidationErrors('order');
+        $this->actingAs($admin)->putJson('/admin/galeri/urutan', ['order' => [9999]])->assertJsonValidationErrors('order.0');
+        $this->actingAs($admin)->putJson('/admin/galeri/urutan', ['order' => [$image->id, $image->id]])->assertJsonValidationErrors('order.0');
     }
 
     public function test_request_larger_than_post_max_size_shows_clear_413_page(): void

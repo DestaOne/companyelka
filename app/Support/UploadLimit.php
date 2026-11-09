@@ -25,6 +25,17 @@ class UploadLimit
         return (int) floor(min($limits) / 1024);
     }
 
+    /** Batas per berkas dari konfigurasi PHP saja, tanpa batas tambahan dari aplikasi; 0 berarti tanpa batas. */
+    public static function serverKilobytes(): int
+    {
+        $limits = array_filter(array_map(
+            fn (string $key) => (int) ini_parse_quantity((string) ini_get($key)),
+            ['upload_max_filesize', 'post_max_size'],
+        ), fn (int $bytes) => $bytes > 0);
+
+        return $limits === [] ? 0 : (int) floor(min($limits) / 1024);
+    }
+
     /** Batas total satu permintaan (post_max_size) dalam byte; 0 berarti tanpa batas. */
     public static function postMaxBytes(): int
     {

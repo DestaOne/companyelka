@@ -39,4 +39,30 @@ class ContactMessage extends Model
 
         return 'https://wa.me/'.Contact::normalizeWhatsapp($this->phone).'?text='.rawurlencode($text);
     }
+
+    /** Isi email yang sama seperti di formulir, ditambah data pengirim. */
+    private function emailBody(): string
+    {
+        return "{$this->body}\r\n\r\nNama: {$this->name}\r\nWhatsApp: {$this->phone}\r\nEmail: {$this->email}";
+    }
+
+    /** Tautan mailto: ke email perusahaan, untuk aplikasi email (ponsel) atau klien email bawaan. */
+    public function mailtoUrl(string $to): string
+    {
+        return 'mailto:'.$to.'?subject='.rawurlencode($this->subject).'&body='.rawurlencode($this->emailBody());
+    }
+
+    /** Jendela tulis pesan Gmail di web, dengan tujuan, subjek, dan isi yang sudah terisi. */
+    public function gmailUrl(string $to): string
+    {
+        return 'https://mail.google.com/mail/?view=cm&fs=1&to='.rawurlencode($to)
+            .'&su='.rawurlencode($this->subject).'&body='.rawurlencode($this->emailBody());
+    }
+
+    /** Jendela tulis pesan Outlook di web. */
+    public function outlookUrl(string $to): string
+    {
+        return 'https://outlook.live.com/mail/0/deeplink/compose?to='.rawurlencode($to)
+            .'&subject='.rawurlencode($this->subject).'&body='.rawurlencode($this->emailBody());
+    }
 }

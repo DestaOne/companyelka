@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -62,7 +63,7 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('admin.login'));
     }
 
-    private function failLogin(User $user): \Illuminate\Testing\TestResponse
+    private function failLogin(User $user): TestResponse
     {
         return $this->post('/admin/login', ['email' => $user->email, 'password' => 'salah']);
     }

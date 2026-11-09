@@ -41,12 +41,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->except('show')
             ->names('services');
 
+        Route::put('galeri/urutan', [GalleryController::class, 'reorder'])->name('gallery.reorder');
+
         Route::resource('galeri', GalleryController::class)
             ->parameters(['galeri' => 'galleryImage'])
             ->only(['index', 'create', 'store', 'update', 'destroy'])
             ->names('gallery');
 
         Route::get('pesan', [MessageController::class, 'index'])->name('messages.index');
+        Route::delete('pesan', [MessageController::class, 'bulkDestroy'])->name('messages.bulk-destroy');
         Route::get('pesan/{message}', [MessageController::class, 'show'])->name('messages.show');
         Route::delete('pesan/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
 
